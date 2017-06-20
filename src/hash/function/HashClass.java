@@ -6,8 +6,11 @@
 package hash.function;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,13 +25,13 @@ import javax.xml.bind.DatatypeConverter;
 public final class HashClass{
     
     private MessageDigest msgDigest;
-    private File hFile;
     private String _hash;
+    private Path realPath;
     
-    public HashClass(String _algo,File cfile){
+    public HashClass(String _algo,Path path){
         try {
             msgDigest = MessageDigest.getInstance(_algo.toUpperCase());
-            if(getFile(cfile)){
+            if(getFile(path)){
                 calculate_hash();
             }
             else{
@@ -44,15 +47,28 @@ public final class HashClass{
     }
     
     private void calculate_hash(){
-        try {
-            String path = hFile.getAbsolutePath();
-            msgDigest.update(Files.readAllBytes(Paths.get(path)));
+        /* try {
+            msgDigest.update(Files.readAllBytes(realPath));
             byte[] digest = msgDigest.digest();
             _hash = DatatypeConverter.printHexBinary(digest).toLowerCase().trim();
             System.out.println(_hash);
         } catch (IOException ex) {
             Logger.getLogger(HashClass.class.getName()).log(Level.SEVERE, null, ex);
         }
+        */
+        try (InputStream inputStream = Files.newInputStream(realPath)) {
+        byte[] bytesBuffer = new byte[1024];
+        int bytesRead = -1;
+        while ((bytesRead = inputStream.read(bytesBuffer)) != -1) {
+            msgDigest.update(bytesBuffer, 0, bytesRead);
+        }
+        byte[] hashedBytes = msgDigest.digest();
+        _hash = DatatypeConverter.printHexBinary(hashedBytes).toLowerCase().trim();
+        System.out.println(_hash);
+    } catch (IOException ex) {
+        System.out.println(ex);
+    }
+        
     }
     
     public boolean compareHash(String fxhash){
@@ -69,10 +85,9 @@ public final class HashClass{
         }
     }
     
-    protected boolean getFile(File file){
-        if(file.exists()){
-            System.out.println(file.getAbsoluteFile());
-            hFile = file;
+    protected boolean getFile(Path path){
+        if(!path.toString().isEmpty()){
+            realPath = path;
             return true;
         }
         return false;

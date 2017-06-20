@@ -8,6 +8,7 @@ package hash.verifier;
 import hash.function.HashClass;
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,8 +26,7 @@ public class fx_viewController implements Initializable {
     
     HashClass hclass;
     private static String _curAlgo;
-    private File file;
-    
+    private Path path;
     @FXML
     RadioMenuItem radio_md5;
     @FXML
@@ -56,12 +56,12 @@ public class fx_viewController implements Initializable {
     public void select_path(){
         FileChooser fchooser = new FileChooser();
         fchooser.setTitle("Select File");
-        file = fchooser.showOpenDialog(new Stage());
-        String path = file.getAbsolutePath();
-        System.out.println(file.getAbsoluteFile().getName());
+        path = fchooser.showOpenDialog(new Stage()).toPath();
+        System.out.println(path);
         txt_path.setEditable(true);
-        txt_path.setText(path);
-        hclass = new HashClass(_curAlgo, file);
+        txt_path.setText(path.toString());
+        
+        hclass = new HashClass(_curAlgo, path);
         show_hash_value.setText(hclass.show_hash());
     }
     @FXML
@@ -71,7 +71,7 @@ public class fx_viewController implements Initializable {
         radio_md5.setSelected(false);
         radio_sha256.setSelected(false);
         radio_sha512.setSelected(false);
-        hclass = new HashClass(_curAlgo,file); 
+        hclass = new HashClass(_curAlgo,path); 
         show_hash_value.setText(hclass.show_hash());
     }
     
@@ -82,7 +82,7 @@ public class fx_viewController implements Initializable {
         radio_md5.setSelected(false);
         radio_sha1.setSelected(false);
         radio_sha512.setSelected(false);
-        hclass = new HashClass(_curAlgo,file); 
+        hclass = new HashClass(_curAlgo,path); 
         show_hash_value.setText(hclass.show_hash());
 
     }
@@ -94,7 +94,7 @@ public class fx_viewController implements Initializable {
         radio_sha1.setSelected(false);
         _curAlgo = "SHA-512";
         show_hash_function.setText(_curAlgo);
-        hclass = new HashClass(_curAlgo,file); 
+        hclass = new HashClass(_curAlgo,path); 
         show_hash_value.setText(hclass.show_hash());
     }
     
@@ -105,7 +105,7 @@ public class fx_viewController implements Initializable {
         radio_sha512.setSelected(false);
         _curAlgo = "MD5";
         show_hash_function.setText(_curAlgo);
-        hclass = new HashClass(_curAlgo,file);
+        hclass = new HashClass(_curAlgo,path);
         show_hash_value.setText(hclass.show_hash());
     }
     
